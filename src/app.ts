@@ -1,6 +1,7 @@
 import fastify from 'fastify';
 
 
+
 export async function startServer() {
   const app = fastify({ logger: true });
 

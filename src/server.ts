@@ -4,7 +4,7 @@ async function start() {
     const app = await startServer();
 
     try {
-        await app.listen({ port: 8080});
+        await app.listen({ port: 8080 });
         app.log.info(`Server listening on port 8080`)
     } catch (error) {
         app.log.error(error);
