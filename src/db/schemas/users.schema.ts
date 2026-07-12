@@ -1,12 +1,12 @@
-import { pgTable, serial, text, varchar, timestamp, integer, pgEnum, uuid } from "drizzle-orm/pg-core";
-import { schools } from "./school.schema.ts";
+import { pgTable, serial, varchar, timestamp, integer, pgEnum, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { schools } from "./school.schema.ts";
 
 export const roleEnum = pgEnum('user_role', ['admin', 'teacher', 'staff']);
 
 export const users = pgTable('users', {
     id: uuid().defaultRandom().primaryKey(),
-    schoolId: integer('school_id')
+    schoolId: uuid('school_id')
         .notNull()
         .references(() => schools.id, { onDelete: 'cascade' }),
 
@@ -14,15 +14,16 @@ export const users = pgTable('users', {
     lastName: varchar('last_name', { length: 50}).notNull(),
     email: varchar('email', { length: 255 }).notNull().unique(),
     role: roleEnum('role').default('teacher').notNull(),
+    passwordHash: varchar('password_hash', { length: 255 }).notNull(),
 
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const teacherProfiles = pgTable('teacher_profiles', {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey(),
 
-    userId: integer('user_id')
+    userId: uuid('user_id')
         .notNull()
         .unique() // Enforces 1-to-1 relationship
         .references(() => users.id, { onDelete: 'cascade' }),
