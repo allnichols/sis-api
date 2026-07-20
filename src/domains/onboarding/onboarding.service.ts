@@ -3,6 +3,7 @@ import { db } from '../../db/db.ts';
 import { schools } from "../../db/schemas/school.schema.ts";
 import { users } from "../../db/schemas/users.schema.ts";
 import { hashPassword } from './utils.ts';
+import jwt from '../../plugins/jwt.ts';
 
 type SchoolAddress = {
     name: string;
@@ -21,20 +22,21 @@ export async function initialSchoolRegistartion(input: {
     schoolInfo: SchoolAddress;
 }) {
     const { adminFirstName, adminLastName, adminEmail, adminPassword, schoolInfo } = input;
-
+ 
     if(!adminFirstName || !adminLastName || !adminEmail || !adminPassword || !schoolInfo.name || !schoolInfo.streetAddress || !schoolInfo.city || !schoolInfo.state || !schoolInfo.zipCode) {
         throw new Error('missing required fields');
     }
 
-   const onboarding = () => db.transaction(async (context) => {
+   return await db.transaction(async (context) => {
 
         const doesAdminExist = await context.execute(
              sql`SELECT 1 FROM ${users} WHERE ${users.email} = ${adminEmail} LIMIT 1`
         );
-
-        if(doesAdminExist.rowCount > 0) {
+        
+        if(doesAdminExist?.rows?.length > 0) {
              throw new Error('An account aleady exists with this email address');
         }
+
         
         const school = await context.execute(
             sql`
@@ -60,10 +62,15 @@ export async function initialSchoolRegistartion(input: {
                 RETURNING id
             `);
             
+        console.log('schools created: ', school.rows[0]);
         
-        const hashedPassword =  hashPassword(adminPassword);
+        const hashedPassword = hashPassword(adminPassword);
 
-        const intialAdmin = await context.execute(
+        console.log('hashed: ', hashedPassword)
+
+        const schoolId = school.rows[0]?.id;
+
+        const initialAdmin = await context.execute(
             sql`
                 INSERT INTO ${users} 
                 (
@@ -76,24 +83,24 @@ export async function initialSchoolRegistartion(input: {
                     created_at
                 )
                 VALUES (
-                    ${school.rows[0].id},
+                    ${schoolId},
                     ${adminFirstName},
                     ${adminLastName},
                     ${adminEmail},
                     'admin',
-                    ${hashPassword},
+                    ${hashedPassword},
                     NOW()
                 )
                 RETURNING id
-            `);   
+            `);  
+
+            console.log('admin: ',initialAdmin)
     
         return {
-            schoolId: school.rows[0].id,
-            adminId: intialAdmin.rows[0].id
+            schoolId: schoolId,
+            adminId: initialAdmin.rows[0]?.id
         }
     });
-    
-
     
 
 };
