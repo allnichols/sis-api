@@ -4,7 +4,11 @@ import { onboardingRoutes } from './domains/onboarding/onboarding.route.ts';
 
 
 export async function startServer() {
-  const app = fastify({ logger: true });
+  const app = fastify({ 
+      logger: process.env.NODE_ENV === 'development' 
+      ? { transport: { target: 'pino-pretty' } } 
+      : true
+    });
 
 
   // global plugins 
