@@ -22,12 +22,14 @@
   "homepage": "https://github.com/allnichols/sis-api#readme",
   "dependencies": {
     "@fastify/jwt": "^10.2.0",
+    "@fastify/type-provider-zod": "^1.0.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "fastify": "^5.8.5",
     "pg": "^8.22.0",
-    "postgres": "^3.4.9"
+    "postgres": "^3.4.9",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

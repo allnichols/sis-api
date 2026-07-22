@@ -1,12 +1,20 @@
 import { type FastifyInstance } from "fastify";
+import type { ZodTypeProvider } from "@fastify/type-provider-zod";
+import { initialRegisterSchema } from "./types.ts";
 import { initialSchoolRegistartion } from "./onboarding.service.ts";
-import type { InitialRegister } from "./types.ts";
-import jwt from '@fastify/jwt';
+
+
 
 export async function onboardingRoutes(app: FastifyInstance) {
-
-    app.post('/register', async (request, reply) => {
-        const body = request.body as InitialRegister;
+    app.withTypeProvider<ZodTypeProvider>().post(
+        '/register',
+         {
+            schema: {
+                body: initialRegisterSchema
+            },
+        }, 
+        async (request, reply) => {
+        const body = request.body;
 
         try {
             const result = await initialSchoolRegistartion(body);

@@ -1,8 +1,9 @@
-import type { InitialRegister } from './types.ts';
+import { initialRegisterSchema } from './types.ts';
+import { z } from 'zod/v4';
 import { schoolRegistration } from './onboarding.repo.ts';
 
 
-export async function initialSchoolRegistartion(input: InitialRegister) {
+export async function initialSchoolRegistartion(input: z.infer<typeof initialRegisterSchema>) {
     const { adminFirstName, adminLastName, adminEmail, adminPassword, schoolInfo } = input;
  
     if(!adminFirstName || !adminLastName || !adminEmail || !adminPassword || !schoolInfo.name || !schoolInfo.streetAddress || !schoolInfo.city || !schoolInfo.state || !schoolInfo.zipCode) {
